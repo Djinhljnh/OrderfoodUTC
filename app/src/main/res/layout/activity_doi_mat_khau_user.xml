@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.DoiMatKhauUser"
+    android:orientation="vertical"
+    android:background="#F4F3F3">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_changepassword"
+        android:layout_width="match_parent"
+        android:background="#F4F3F3"
+        android:layout_height="?attr/actionBarSize">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Change password"
+            android:layout_gravity="center"
+            android:textColor="#000000"
+            android:textSize="25dp"
+            android:gravity="center"/>
+    </androidx.appcompat.widget.Toolbar>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:text="Enter current password"
+        android:layout_marginTop="25dp"
+        android:textColor="#2E2E2E"
+        android:textSize="20dp"/>
+
+    <EditText
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:id="@+id/edt_currpass"
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_height="60dp"
+        android:hint="Current password"
+        android:textColorHint="#2E2E2E"
+        android:background="@drawable/border"
+        android:padding="15dp"
+        android:drawableLeft="@drawable/ic_baseline_https_24"
+        android:drawablePadding="15dp"
+        android:inputType="textPassword" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:text="Enter new password"
+        android:layout_marginTop="30dp"
+        android:textColor="#2E2E2E"
+        android:textSize="20dp"/>
+
+    <EditText
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:id="@+id/edt_newpass"
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_height="60dp"
+        android:hint="New password"
+        android:textColorHint="#2E2E2E"
+        android:background="@drawable/border"
+        android:padding="15dp"
+        android:drawableLeft="@drawable/ic_baseline_https_24"
+        android:drawablePadding="15dp"
+        android:inputType="textPassword" />
+
+    <EditText
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:id="@+id/edt_pass"
+        android:layout_width="match_parent"
+        android:layout_marginTop="15dp"
+        android:layout_height="60dp"
+        android:hint="Enter new password again"
+        android:textColorHint="#2E2E2E"
+        android:background="@drawable/border"
+        android:padding="15dp"
+        android:drawableLeft="@drawable/ic_baseline_https_24"
+        android:drawablePadding="15dp"
+        android:inputType="textPassword" />
+
+    <Button
+        android:id="@+id/btn_update"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Update"
+        android:textColor="#fff"
+        android:background="@drawable/border5"/>
+
+</LinearLayout>
