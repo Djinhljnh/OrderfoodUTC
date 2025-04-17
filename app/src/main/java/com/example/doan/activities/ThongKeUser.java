@@ -3,12 +3,15 @@ package com.example.doan.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.doan.R;
+import com.example.doan.adapter.HoaDonAdapter;
 import com.example.doan.model.HoaDonChiTiet;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +29,8 @@ public class ThongKeUser extends AppCompatActivity {
     private List<HoaDonChiTiet> hoaDonChiTietList;
     private TextView tv_sumoder, tv_summoney;
     private int sum1, sum2;
+    private RecyclerView rcv_hoadon;
+    private HoaDonAdapter hoaDonAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +45,14 @@ public class ThongKeUser extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+
         hoaDonChiTietList = new ArrayList<>();
         getList();
+
+        rcv_hoadon = findViewById(R.id.rcv_hoadon);
+        rcv_hoadon.setLayoutManager(new LinearLayoutManager(this));
+        hoaDonAdapter = new HoaDonAdapter(hoaDonChiTietList);
+        rcv_hoadon.setAdapter(hoaDonAdapter);
     }
 
     private void getList(){
@@ -63,6 +74,9 @@ public class ThongKeUser extends AppCompatActivity {
                         }
                         tv_sumoder.setText(String.valueOf(sum1));
                         tv_summoney.setText("$ "+(String.valueOf(sum2)));
+
+                        hoaDonAdapter.notifyDataSetChanged();
+
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {

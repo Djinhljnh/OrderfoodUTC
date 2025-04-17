@@ -215,6 +215,13 @@
                 android:textColor="#F44336"
                 android:layout_gravity="center"/>
         </LinearLayout>
+
+
     </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rcv_invoices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp" />
 
 </LinearLayout>

@@ -3,6 +3,8 @@ package com.example.doan.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.doan.R;
+import com.example.doan.adapter.InvoiceAdapter;
 import com.example.doan.model.HoaDonChiTietAdmin;
 import com.example.doan.model.SanPham;
 import com.example.doan.model.TheLoai;
@@ -44,6 +47,11 @@ public class StatisticalManageActivity extends AppCompatActivity {
 
     private int sum1, sum2;
 
+    private RecyclerView rcvInvoices;
+    private InvoiceAdapter invoiceAdapter;
+    private List<HoaDonChiTietAdmin> filteredInvoiceList;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +69,13 @@ public class StatisticalManageActivity extends AppCompatActivity {
         tvToDate = (TextView) findViewById(R.id.tv_todate);
         tvSumoder = (TextView) findViewById(R.id.tv_sumoder);
         tvSummoney = (TextView) findViewById(R.id.tv_summoney);
+
+        rcvInvoices = findViewById(R.id.rcv_invoices);
+        filteredInvoiceList = new ArrayList<>();
+        invoiceAdapter = new InvoiceAdapter(filteredInvoiceList);
+        rcvInvoices.setLayoutManager(new LinearLayoutManager(this));
+        rcvInvoices.setAdapter(invoiceAdapter);
+
 
         tvFromDate.setOnClickListener(v ->{
             Calendar calendar = Calendar.getInstance();
@@ -104,27 +119,34 @@ public class StatisticalManageActivity extends AppCompatActivity {
             dialog.show();
         });
 
-        findViewById(R.id.btn_check).setOnClickListener(v ->{
+        findViewById(R.id.btn_check).setOnClickListener(v -> {
             if (tvFromDate.getText().toString().equals("From date") || tvToDate.getText().toString().equals("To date")) {
                 Toast.makeText(this, "Please select a date!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            sum2 = 0;
+
             sum1 = 0;
+            sum2 = 0;
+            filteredInvoiceList.clear();
+
             List<Date> dates = getDates(tvFromDate.getText().toString(), tvToDate.getText().toString());
-            for (HoaDonChiTietAdmin hoaDonChiTietAdmin: hoaDonChiTietAdminList) {
-                for(Date date:dates){
-                    String date1 = DateFormat.getDateInstance().format(date);
-                    if (hoaDonChiTietAdmin.getDate().toLowerCase().contains(""+date1.toLowerCase())) {
-                        sum1 = sum1+1;
-                        sum2 = sum2+ Integer.parseInt(hoaDonChiTietAdmin.getSum_Price());
+            for (HoaDonChiTietAdmin hoaDonChiTietAdmin : hoaDonChiTietAdminList) {
+                for (Date date : dates) {
+                    String dateStr = DateFormat.getDateInstance().format(date);
+                    if (hoaDonChiTietAdmin.getDate().toLowerCase().contains(dateStr.toLowerCase())) {
+                        sum1++;
+                        sum2 += Integer.parseInt(hoaDonChiTietAdmin.getSum_Price());
+                        filteredInvoiceList.add(hoaDonChiTietAdmin);
+                        break;
                     }
                 }
             }
-            tvSumoder.setText(String.valueOf(sum1));
-            tvSummoney.setText("$ "+(String.valueOf(sum2)));
 
+            tvSumoder.setText(String.valueOf(sum1));
+            tvSummoney.setText("$ " + sum2);
+            invoiceAdapter.setData(filteredInvoiceList);
         });
+
 
         userList = new ArrayList<>();
         hoaDonChiTietAdminList =  new ArrayList<>();
