@@ -29,6 +29,12 @@ public class ThongBao extends AppCompatActivity {
         if (img == R.drawable.qc1) {
             uri = Uri.parse("https://firebasestorage.googleapis.com/v0/b/duan-oder-doan.appspot.com/o/Images_Advertisement%2Fqc1.jpg?alt=media&token=5b30e500-25de-4c8c-a265-15512ecfb751");
         }
+        if (img == R.drawable.qc2) {
+            uri = Uri.parse("https://firebasestorage.googleapis.com/v0/b/codedoan-2a2a1.appspot.com/o/Images_Food%2Fheo%2Fqc2.jpg?alt=media&token=6e32dc18-2d83-474d-979d-dba163231666");
+        }
+        if (img == R.drawable.qc4) {
+            uri = Uri.parse("https://firebasestorage.googleapis.com/v0/b/codedoan-2a2a1.appspot.com/o/Images_Food%2Fheo%2Fqc4.jpg?alt=media&token=9e5e0e98-e33f-4aa8-a27b-a540294e3aa9");
+        }
         if (img == R.drawable.vdfood) {
             uri = Uri.parse("https://firebasestorage.googleapis.com/v0/b/codedoan-2a2a1.appspot.com/o/Images_Food%2Fheo%2Fvdfood.png?alt=media&token=da283d45-2929-4c78-99fd-8d611afbf083");
         }

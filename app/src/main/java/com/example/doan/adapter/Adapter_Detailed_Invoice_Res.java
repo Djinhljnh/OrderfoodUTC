@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.doan.R;
+import com.example.doan.activities.NotificationHelper;
 import com.example.doan.model.Food_HoaDonChiTiet;
 import com.example.doan.model.HoaDonChiTietAdmin;
 import com.example.doan.view_holder.View_Holder_Detailed_Invoice_Admin;
@@ -118,8 +119,10 @@ public class Adapter_Detailed_Invoice_Res extends RecyclerView.Adapter<View_Hold
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 Toast.makeText(v.getContext(), "Cập nhật trạng thái trong Detailed_Invoices thành công", Toast.LENGTH_SHORT).show();
+                                NotificationHelper.sendNotification(v.getContext(), "Status Changed", "Trạng thái đơn hàng của bạn đã được cập nhật thành 'Doing'.");
                             } else {
                                 Toast.makeText(v.getContext(), "Lỗi cập nhật trong Detailed_Invoices!", Toast.LENGTH_SHORT).show();
+                                NotificationHelper.sendNotification(v.getContext(), "Error", "Lỗi cập nhật trong Detailed_Invoices!");
                             }
                         });
 
@@ -177,8 +180,10 @@ public class Adapter_Detailed_Invoice_Res extends RecyclerView.Adapter<View_Hold
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 Toast.makeText(v.getContext(), "Cập nhật trạng thái trong Detailed_Invoices thành công", Toast.LENGTH_SHORT).show();
+                                NotificationHelper.sendNotification(v.getContext(), "Status Changed", "Trạng thái đơn hàng của bạn đã được cập nhật thành 'finished'.");
                             } else {
                                 Toast.makeText(v.getContext(), "Lỗi cập nhật trong Detailed_Invoices!", Toast.LENGTH_SHORT).show();
+                                NotificationHelper.sendNotification(v.getContext(), "Error", "Lỗi cập nhật trong Detailed_Invoices!");
                             }
                         });
 
@@ -197,8 +202,10 @@ public class Adapter_Detailed_Invoice_Res extends RecyclerView.Adapter<View_Hold
                                         .addOnCompleteListener(task -> {
                                             if (task.isSuccessful()) {
                                                 Toast.makeText(v.getContext(), "Cập nhật trạng thái thành công!", Toast.LENGTH_SHORT).show();
+
                                             } else {
                                                 Toast.makeText(v.getContext(), "Lỗi cập nhật Users!", Toast.LENGTH_SHORT).show();
+
                                             }
                                         });
                                 break;
