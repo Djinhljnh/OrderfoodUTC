@@ -42,12 +42,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 public class Frag_add_category extends Fragment implements Adapter_Category_Admin.Callback {
     private FloatingActionButton btn_floatCategory;
-    private EditText edt_nameCategory,edt_nameCategoryUpdate;
+    private EditText edt_nameCategory, edt_nameCategoryUpdate;
     private ImageView img_category, img_categoryUpdate;
-    private ActivityResultLauncher<String> launcher;
-    private ActivityResultLauncher<String> launcher1;
+    private Uri selectedImageUriAdd = null;
+    private Uri selectedImageUriUpdate = null;
     private FirebaseStorage storage;
 
     private List<TheLoai> theLoaiList;
@@ -56,6 +57,9 @@ public class Frag_add_category extends Fragment implements Adapter_Category_Admi
     private TheLoai theLoai;
     private int id = 0;
     private String image1, image2;
+
+    private ActivityResultLauncher<String> launcher;
+    private ActivityResultLauncher<String> launcher1;
 
     @Nullable
     @Override
@@ -70,122 +74,96 @@ public class Frag_add_category extends Fragment implements Adapter_Category_Admi
         recyclerView = view.findViewById(R.id.rcv_category);
         btn_floatCategory = view.findViewById(R.id.floatCategory);
         storage = FirebaseStorage.getInstance();
-        launcher = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>() {
-            @Override
-            public void onActivityResult(Uri result) {
+
+        launcher = registerForActivityResult(new ActivityResultContracts.GetContent(), result -> {
+            if (result != null) {
+                selectedImageUriAdd = result;
                 img_category.setImageURI(result);
-                final StorageReference reference = storage.getReference("Images_Category")
-                        .child(edt_nameCategory.getText().toString());
-                reference.putFile(result)
-                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                final Task<Uri> firebaseUri = taskSnapshot.getStorage().getDownloadUrl();
-                                firebaseUri.addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Toast.makeText(getContext(),"Loading...", Toast.LENGTH_LONG).show();
-                                        image1 = uri.toString();
-                                    }
-                                });
-
-                            }
-                        });
             }
-
         });
-        launcher1 = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>() {
-            @Override
-            public void onActivityResult(Uri result) {
+
+        launcher1 = registerForActivityResult(new ActivityResultContracts.GetContent(), result -> {
+            if (result != null) {
+                selectedImageUriUpdate = result;
                 img_categoryUpdate.setImageURI(result);
-                final StorageReference reference = storage.getReference("Images_Category")
-                        .child(edt_nameCategory.getText().toString());
-                reference.putFile(result)
-                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                final Task<Uri> firebaseUri = taskSnapshot.getStorage().getDownloadUrl();
-                                firebaseUri.addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Toast.makeText(getContext(),"Loading...", Toast.LENGTH_LONG).show();
-                                        image2 = uri.toString();
-                                    }
-                                });
-
-                            }
-                        });
             }
         });
 
-        btn_floatCategory.setOnClickListener(v -> {
-            final Dialog dialog = new Dialog(getContext(), androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog_Alert);
-            dialog.setContentView(R.layout.dialog_add_category);
-            edt_nameCategory = dialog.findViewById(R.id.edt_nameCategory);
-            img_category = dialog.findViewById(R.id.img_category);
-            dialog.findViewById(R.id.btn_imgcategory).setOnClickListener(v1 ->{
-                launcher.launch("image/*");
-            });
-            image1 = "https://firebasestorage.googleapis.com/v0/b/duan-oder-doan.appspot.com/o/vdfood.png?alt=media&token=425bc41a-426c-477b-99f8-b2efa36ebc40";
-            Picasso.get().load(image1).into(img_category);
-
-            dialog.findViewById(R.id.btn_save).setOnClickListener(view1 -> {
-                String nameCategory = edt_nameCategory.getText().toString();
-
-                if (nameCategory.isEmpty()) {
-                    edt_nameCategory.setError("Name Category is required");
-                    edt_nameCategory.requestFocus();
-                    return;
-                }
-                theLoaiList.clear();
-                adapter.notifyDataSetChanged();
-                id = id+1;
-                theLoai = new TheLoai(id, image1, nameCategory);
-                FirebaseDatabase.getInstance().getReference("Categories")
-                        .child(String.valueOf(id))
-                        .setValue(theLoai).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(getContext(), "Add category successfully!", Toast.LENGTH_LONG).show();
-                                    dialog.dismiss();
-                                }
-                            }
-                        });
-
-
-            });
-            dialog.show();
-        });
+        btn_floatCategory.setOnClickListener(v -> showAddDialog());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
+
         theLoaiList = new ArrayList<>();
         adapter = new Adapter_Category_Admin(theLoaiList, this);
         getList();
 
         EditText edt_searchCategory = view.findViewById(R.id.edt_searchCategory);
         edt_searchCategory.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
+                filter(s.toString());
+            }
+        });
+    }
 
+    private void showAddDialog() {
+        final Dialog dialog = new Dialog(getContext(), androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog_Alert);
+        dialog.setContentView(R.layout.dialog_add_category);
+        edt_nameCategory = dialog.findViewById(R.id.edt_nameCategory);
+        img_category = dialog.findViewById(R.id.img_category);
+        selectedImageUriAdd = null;
+
+        dialog.findViewById(R.id.btn_imgcategory).setOnClickListener(v -> launcher.launch("image/*"));
+
+        image1 = "https://firebasestorage.googleapis.com/v0/b/duan-oder-doan.appspot.com/o/vdfood.png?alt=media&token=425bc41a-426c-477b-99f8-b2efa36ebc40";
+        Picasso.get().load(image1).into(img_category);
+
+        dialog.findViewById(R.id.btn_save).setOnClickListener(view1 -> {
+            String nameCategory = edt_nameCategory.getText().toString().trim();
+
+            if (nameCategory.isEmpty()) {
+                edt_nameCategory.setError("Name Category is required");
+                edt_nameCategory.requestFocus();
+                return;
             }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                filter(editable.toString());
+            if (selectedImageUriAdd != null) {
+                StorageReference reference = storage.getReference("Images_Category").child(nameCategory + "_" + System.currentTimeMillis());
+                reference.putFile(selectedImageUriAdd)
+                        .addOnSuccessListener(taskSnapshot -> {
+                            reference.getDownloadUrl().addOnSuccessListener(uri -> {
+                                image1 = uri.toString();
+                                saveNewCategory(nameCategory, image1, dialog);
+                            });
+                        });
+            } else {
+                saveNewCategory(nameCategory, image1, dialog);
             }
         });
 
+        dialog.show();
+    }
+
+    private void saveNewCategory(String nameCategory, String imageUrl, Dialog dialog) {
+        theLoaiList.clear();
+        adapter.notifyDataSetChanged();
+        id = id + 1;
+        theLoai = new TheLoai(id, imageUrl, nameCategory);
+        FirebaseDatabase.getInstance().getReference("Categories")
+                .child(String.valueOf(id))
+                .setValue(theLoai)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "Add category successfully!", Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    }
+                });
     }
 
     private void filter(String text) {
         ArrayList<TheLoai> filteredList = new ArrayList<>();
-        for (TheLoai theLoai: theLoaiList){
+        for (TheLoai theLoai : theLoaiList) {
             if (theLoai.getName_category().toLowerCase().contains(text.toLowerCase())) {
                 filteredList.add(theLoai);
             }
@@ -193,15 +171,14 @@ public class Frag_add_category extends Fragment implements Adapter_Category_Admi
         adapter.filterList(filteredList);
     }
 
-    private void getList(){
-
+    private void getList() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference reference = database.getReference("Categories");
 
         reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                theLoaiList.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     theLoai = dataSnapshot.getValue(TheLoai.class);
                     theLoaiList.add(theLoai);
                 }
@@ -211,9 +188,8 @@ public class Frag_add_category extends Fragment implements Adapter_Category_Admi
                 id = theLoaiList.size();
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Get list faild!", Toast.LENGTH_LONG).show();
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Get list failed!", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -224,42 +200,53 @@ public class Frag_add_category extends Fragment implements Adapter_Category_Admi
         dialog.setContentView(R.layout.dialog_update_category);
         edt_nameCategoryUpdate = dialog.findViewById(R.id.edt_nameCategoryUpdate);
         img_categoryUpdate = dialog.findViewById(R.id.img_categoryUpdate);
+        selectedImageUriUpdate = null;
 
         edt_nameCategoryUpdate.setText(theLoai.getName_category());
         Picasso.get().load(theLoai.getImg_category()).into(img_categoryUpdate);
-        dialog.findViewById(R.id.btn_imgcategoryUpdate).setOnClickListener(v1 ->{
-            launcher1.launch("image/*");
-        });
+
+        dialog.findViewById(R.id.btn_imgcategoryUpdate).setOnClickListener(v1 -> launcher1.launch("image/*"));
 
         dialog.findViewById(R.id.btn_save).setOnClickListener(view1 -> {
-            String nameCategory = edt_nameCategoryUpdate.getText().toString();
-
-            theLoaiList.clear();
-            adapter.notifyDataSetChanged();
-
+            String nameCategory = edt_nameCategoryUpdate.getText().toString().trim();
             if (nameCategory.isEmpty()) {
                 edt_nameCategoryUpdate.setError("Name Category is required");
                 edt_nameCategoryUpdate.requestFocus();
                 return;
             }
 
-            TheLoai theLoai1 = new TheLoai(theLoai.getId(), image2, nameCategory);
-            FirebaseDatabase.getInstance().getReference("Categories")
-                    .child(String.valueOf(theLoai1.getId()))
-                    .setValue(theLoai1).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(getContext(), "Add category successfully!", Toast.LENGTH_LONG).show();
-                                dialog.dismiss();
-                            }
-                        }
-                    });
-
-
+            if (selectedImageUriUpdate != null) {
+                StorageReference reference = storage.getReference("Images_Category").child(nameCategory + "_" + System.currentTimeMillis());
+                reference.putFile(selectedImageUriUpdate)
+                        .addOnSuccessListener(taskSnapshot -> {
+                            reference.getDownloadUrl().addOnSuccessListener(uri -> {
+                                image2 = uri.toString();
+                                updateCategory(new TheLoai(theLoai.getId(), image2, nameCategory), dialog);
+                            });
+                        });
+            } else {
+                updateCategory(new TheLoai(theLoai.getId(), theLoai.getImg_category(), nameCategory), dialog);
+            }
         });
+
         dialog.show();
     }
+
+    private void updateCategory(TheLoai updatedCategory, Dialog dialog) {
+        theLoaiList.clear();
+        adapter.notifyDataSetChanged();
+
+        FirebaseDatabase.getInstance().getReference("Categories")
+                .child(String.valueOf(updatedCategory.getId()))
+                .setValue(updatedCategory)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "Update category successfully!", Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    }
+                });
+    }
+
     @Override
     public void delete(TheLoai theLoai) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Categories")
@@ -275,5 +262,4 @@ public class Frag_add_category extends Fragment implements Adapter_Category_Admi
             }
         });
     }
-
 }
